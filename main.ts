@@ -16,16 +16,16 @@ interface Settings {
 
 export default class RelativeLineNumbers extends Plugin {
   private editorExtension: Extension[] = [];
-  private settings: Settings = { enabled: true };
+  settings: Settings = { enabled: true };
 
   async onload() {
-    this.settings = { ...this.settings, ...(await this.loadData()) };
+    this.settings = { ...this.settings, ...((await this.loadData()) as Partial<Settings> | null) };
     this.registerEditorExtension(this.editorExtension);
     this.registerEvent(this.app.vault.on("config-changed", () => this.refresh()));
 
     this.addCommand({
       id: "toggle-relative-line-numbers",
-      name: "Toggle Relative Line Numbers",
+      name: "Toggle",
       callback: async () => {
         this.settings.enabled = !this.settings.enabled;
         await this.saveData(this.settings);

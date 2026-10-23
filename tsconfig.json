@@ -1,22 +1,15 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "inlineSourceMap": true,
-    "inlineSources": true,
+    "target": "ES2022",
     "module": "ESNext",
-    "target": "es5",
-    "allowJs": true,
-    "noImplicitAny": true,
-    "moduleResolution": "node",
-    "importHelpers": true,
-    "lib": [
-      "dom",
-      "es5",
-      "scripthost",
-      "es2015"
-    ]
+    "moduleResolution": "bundler",
+    "lib": ["DOM", "ES2022"],
+    "strict": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "inlineSourceMap": true,
+    "inlineSources": true
   },
-  "include": [
-    "**/*.ts"
-  ]
+  "include": ["*.ts"]
 }
