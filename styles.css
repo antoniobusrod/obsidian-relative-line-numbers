@@ -1,10 +1,28 @@
-.relative-line-numbers-mono {
+.cm-lineNumbers {
   font-family: monospace;
   white-space: pre;
 }
 
-.cm-lineNumbers {
-  font-family: monospace;
-  white-space: pre;
-  min-width: 25px; /* prevent relative line numbers from shifting on files with ~10-20 lines */
+/* Numbers are padded to the same character count, so the monospace font
+   alone keeps the gutter width stable. Override Obsidian's wider defaults. */
+.markdown-source-view.mod-cm6 .cm-lineNumbers .cm-gutterElement {
+  min-width: 0;
+  padding: 0;
+}
+
+/* Obsidian reserves --file-folding-offset (24px) after the gutter for the
+   heading and list fold arrows. Shrinking it lets those arrows overlap the
+   line numbers while hovered or collapsed. */
+.markdown-source-view.mod-cm6 .cm-gutters {
+  margin-inline-end: 2px;
+}
+
+.markdown-source-view.mod-cm6 .cm-lineNumbers .cm-activeLineGutter {
+  background-color: transparent;
+  color: var(--text-accent);
+  font-weight: var(--font-bold);
+}
+
+.markdown-source-view.mod-cm6 .cm-activeLine {
+  background-color: var(--background-modifier-hover);
 }

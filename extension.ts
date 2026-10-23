@@ -1,24 +1,9 @@
 import { Extension } from "@codemirror/state";
-import { EditorView, ViewUpdate, gutter, lineNumbers, GutterMarker } from "@codemirror/view";
+import { EditorView, ViewUpdate, highlightActiveLine, highlightActiveLineGutter, lineNumbers } from "@codemirror/view";
 import { Compartment, EditorState } from "@codemirror/state";
 import {foldedRanges} from "@codemirror/language"
 
 let relativeLineNumberGutter = new Compartment();
-
-class Marker extends GutterMarker {
-  /** The text to render in gutter */
-  text: string;
-
-  constructor(text: string) {
-    super();
-    this.text = text;
-    this.elementClass = "relative-line-numbers-mono";
-  }
-
-  toDOM() {
-    return document.createTextNode(this.text);
-  }
-}
 
 function linesCharLength(state: EditorState): number {
   /**
@@ -27,27 +12,6 @@ function linesCharLength(state: EditorState): number {
    */
   return state.doc.lines.toString().length;
 }
-
-const absoluteLineNumberGutter = gutter({
-  lineMarker: (view, line) => {
-    const lineNo = view.state.doc.lineAt(line.from).number;
-    const charLength = linesCharLength(view.state);
-    const absoluteLineNo = new Marker(lineNo.toString().padStart(charLength, " "));
-    const cursorLine = view.state.doc.lineAt(
-      view.state.selection.asSingle().ranges[0].to
-    ).number;
-
-    if (lineNo === cursorLine) {
-      return absoluteLineNo;
-    }
-
-    return null;
-  },
-  initialSpacer: (view: EditorView) => {
-    const spacer = new Marker("0".repeat(linesCharLength(view.state)));
-    return spacer;
-  },
-});
 
 function relativeLineNumbers(lineNo: number, state: EditorState) {
   const charLength = linesCharLength(state);
@@ -75,7 +39,7 @@ function relativeLineNumbers(lineNo: number, state: EditorState) {
   })
 
   if (lineNo === cursorLine) {
-    return blank;
+    return lineNo.toString().padStart(charLength, " ");
   } else {
     return (Math.abs(cursorLine - lineNo) - foldedCount).toString().padStart(charLength, " ");
   }
@@ -100,5 +64,10 @@ const lineNumbersUpdateListener = EditorView.updateListener.of(
 );
 
 export function lineNumbersRelative(): Extension {
-  return [absoluteLineNumberGutter, showLineNumbers, lineNumbersUpdateListener];
+  return [
+    showLineNumbers,
+    lineNumbersUpdateListener,
+    highlightActiveLine(),
+    highlightActiveLineGutter(),
+  ];
 }
