@@ -1,10 +1,11 @@
-.relative-line-numbers-mono {
+.cm-lineNumbers {
   font-family: monospace;
   white-space: pre;
 }
 
-.cm-lineNumbers {
-  font-family: monospace;
-  white-space: pre;
-  min-width: 25px; /* prevent relative line numbers from shifting on files with ~10-20 lines */
+/* Numbers are padded to the same character count, so the monospace font
+   alone keeps the gutter width stable. Override Obsidian's wider defaults. */
+.markdown-source-view.mod-cm6 .cm-lineNumbers .cm-gutterElement {
+  min-width: 0;
+  padding: 0 4px 0 0;
 }
