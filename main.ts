@@ -1,113 +1,54 @@
-import { Plugin } from "obsidian";
-import { lineNumbersRelative } from "./extension";
+import { EventRef, Plugin } from "obsidian";
 import { Extension } from "@codemirror/state";
+import { lineNumbersRelative } from "./extension";
+
+// Undocumented Vault API that Obsidian uses for its own editor settings.
+declare module "obsidian" {
+  interface Vault {
+    getConfig(key: "showLineNumber"): boolean | undefined;
+    on(name: "config-changed", callback: () => void): EventRef;
+  }
+}
+
+interface Settings {
+  enabled: boolean;
+}
 
 export default class RelativeLineNumbers extends Plugin {
   private editorExtension: Extension[] = [];
-  enabled: boolean;
-
-  isLegacy() {
-    return (this.app as any).vault.config?.legacyEditor;
-  }
+  settings: Settings = { enabled: true };
 
   async onload() {
+    this.settings = { ...this.settings, ...((await this.loadData()) as Partial<Settings> | null) };
     this.registerEditorExtension(this.editorExtension);
-    // @ts-ignore
-    const showLineNumber: Boolean = this.app.vault.getConfig("showLineNumber");
-    if (showLineNumber) {
-      this.enable();
-    }
+    this.registerEvent(this.app.vault.on("config-changed", () => this.refresh()));
 
-    this.setupConfigChangeListener();
     this.addCommand({
       id: "toggle-relative-line-numbers",
-      name: "Toggle Relative Line Numbers",
-      callback: () => {
-        if (showLineNumber) {
-          if (this.enabled) {
-            this.disable();
-          } else {
-            this.enable();
-          }
-        }
+      name: "Toggle",
+      callback: async () => {
+        this.settings.enabled = !this.settings.enabled;
+        await this.saveData(this.settings);
+        this.refresh();
       },
     });
+
+    this.refresh();
   }
 
-  onunload() {
-    this.disable();
-  }
-
-  enable() {
-    this.enabled = true;
-
-    if (this.isLegacy()) {
-      this.legacyEnable();
-    } else {
-      this.editorExtension.length = 0;
-      this.editorExtension.push(lineNumbersRelative());
-      this.app.workspace.updateOptions();
-    }
-  }
-
-  disable() {
-    this.enabled = false;
-    if (this.isLegacy()) {
-      this.legacyDisable();
-    } else {
-      this.editorExtension.length = 0;
-      this.app.workspace.updateOptions();
-    }
-  }
-
-  legacyEnable() {
-    this.registerCodeMirror((cm) => {
-      cm.on("cursorActivity", this.legacyRelativeLineNumbers);
-    });
-  }
-
-  legacyDisable() {
-    this.app.workspace.iterateCodeMirrors((cm) => {
-      cm.off("cursorActivity", this.legacyRelativeLineNumbers);
-      cm.setOption(
-        "lineNumberFormatter",
-        // @ts-ignore
-        CodeMirror.defaults["lineNumberFormatter"]
-      );
-    });
-  }
-
-  setupConfigChangeListener() {
-    // @ts-ignore
-    const configChangedEvent = this.app.vault.on("config-changed", () => {
-      const showLineNumber: Boolean =
-        // @ts-ignore
-        this.app.vault.getConfig("showLineNumber");
-      if (showLineNumber && !this.enabled) {
-        this.enable();
-      } else if (!showLineNumber && this.enabled) {
-        this.disable();
-      }
-    });
-
-    // @ts-ignore
-    configChangedEvent.ctx = this;
-
-    this.registerEvent(configChangedEvent);
-  }
-
-  legacyRelativeLineNumbers(cm: CodeMirror.Editor) {
-    const current = cm.getCursor().line + 1;
-    if (cm.state.curLineNum === current) {
+  // The extension replaces the formatter of Obsidian's own line number gutter,
+  // so it must only be active while "Show line number" is on. Otherwise it
+  // would add a gutter of its own.
+  private refresh() {
+    const active = this.settings.enabled && !!this.app.vault.getConfig("showLineNumber");
+    if (active === this.editorExtension.length > 0) {
       return;
     }
-    cm.state.curLineNum = current;
-    cm.setOption("lineNumberFormatter", (line: number) => {
-      if (line === current) {
-        return String(current);
-      }
 
-      return String(Math.abs(current - line));
-    });
+    this.editorExtension.length = 0;
+    if (active) {
+      this.editorExtension.push(lineNumbersRelative());
+    }
+    this.app.workspace.updateOptions();
   }
 }

@@ -1,11 +1,8 @@
-.cm-lineNumbers {
-  font-family: monospace;
-  white-space: pre;
-}
-
-/* Numbers are padded to the same character count, so the monospace font
-   alone keeps the gutter width stable. Override Obsidian's wider defaults. */
+/* Numbers are padded with figure spaces to the same character count, and
+   tabular figures give every digit that same width, so the gutter width stays
+   stable in Obsidian's own font. Override Obsidian's wider defaults. */
 .markdown-source-view.mod-cm6 .cm-lineNumbers .cm-gutterElement {
+  font-variant-numeric: tabular-nums;
   min-width: 0;
   padding: 0;
 }
@@ -15,6 +12,11 @@
    line numbers while hovered or collapsed. */
 .markdown-source-view.mod-cm6 .cm-gutters {
   margin-inline-end: 2px;
+}
+
+/* Table cells are nested editors that pick up the editor extension too. */
+.markdown-source-view.mod-cm6 .table-editor .cm-gutters {
+  display: none;
 }
 
 .markdown-source-view.mod-cm6 .cm-lineNumbers .cm-activeLineGutter {
