@@ -7,5 +7,12 @@
    alone keeps the gutter width stable. Override Obsidian's wider defaults. */
 .markdown-source-view.mod-cm6 .cm-lineNumbers .cm-gutterElement {
   min-width: 0;
-  padding: 0 4px 0 0;
+  padding: 0;
+}
+
+/* Obsidian reserves --file-folding-offset (24px) after the gutter for the
+   heading and list fold arrows. Shrinking it lets those arrows overlap the
+   line numbers while hovered or collapsed. */
+.markdown-source-view.mod-cm6 .cm-gutters {
+  margin-inline-end: 6px;
 }
