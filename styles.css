@@ -14,5 +14,15 @@
    heading and list fold arrows. Shrinking it lets those arrows overlap the
    line numbers while hovered or collapsed. */
 .markdown-source-view.mod-cm6 .cm-gutters {
-  margin-inline-end: 6px;
+  margin-inline-end: 2px;
+}
+
+.markdown-source-view.mod-cm6 .cm-lineNumbers .cm-activeLineGutter {
+  background-color: transparent;
+  color: var(--text-accent);
+  font-weight: var(--font-bold);
+}
+
+.markdown-source-view.mod-cm6 .cm-activeLine {
+  background-color: var(--background-modifier-hover);
 }

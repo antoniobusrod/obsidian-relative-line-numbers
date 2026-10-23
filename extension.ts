@@ -1,5 +1,5 @@
 import { Extension } from "@codemirror/state";
-import { EditorView, ViewUpdate, lineNumbers } from "@codemirror/view";
+import { EditorView, ViewUpdate, highlightActiveLine, highlightActiveLineGutter, lineNumbers } from "@codemirror/view";
 import { Compartment, EditorState } from "@codemirror/state";
 import {foldedRanges} from "@codemirror/language"
 
@@ -64,5 +64,10 @@ const lineNumbersUpdateListener = EditorView.updateListener.of(
 );
 
 export function lineNumbersRelative(): Extension {
-  return [showLineNumbers, lineNumbersUpdateListener];
+  return [
+    showLineNumbers,
+    lineNumbersUpdateListener,
+    highlightActiveLine(),
+    highlightActiveLineGutter(),
+  ];
 }
